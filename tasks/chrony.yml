@@ -16,9 +16,9 @@
     - regexp: '^pool\s+'
       line: "pool 2.debian.pool.ntp.org iburst noselect"
     - regexp: '^maxupdateskew.+'
-      line: "maxupdateskew 0"
+      line: "maxupdateskew 10000"
     - regexp: '^makestep.+'
-      line: "makestep 0 0"
+      line: "makestep 0.1 -1"
 
 - name: Customize other chrony configuration.
   ansible.builtin.template:

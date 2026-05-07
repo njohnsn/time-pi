@@ -9,6 +9,10 @@
   with_items:
     - regexp: '^dtoverlay=pciex1-compat'
       line: "dtoverlay=pciex1-compat-pi5,mmio-hi"
+    - regexp: '^dtoverlay=pps-gpio,gpiopin=18'
+      line: "dtoverlay=pps-gpio,gpiopin=18"
+    - regexp: '^dtparam=pciex1_gen=3'
+      line: "dtparam=pciex1_gen=3"
     - regexp: '^dtparam=uart0'
       line: "dtparam=uart0=on"
 
@@ -21,8 +25,37 @@
   with_items:
     - "console=serial0,115200"
 
+- name: Switch RPi to performance mode to ensure best performance GPS.
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+  register: set_performance_mode
+
+- name: Ensure core 4 is isolated and pcie power management is disabled for i226 compatibility.
+  ansible.builtin.lineinfile:
+    path: /etc/example.conf
+    regexp: '^(.*?)(?:\s{{ item }})?$'
+    line: '\1 {{ item }}'
+    backrefs: true
+  register: modify_cmdline_txt
+  loop:
+    - "isolcpus=3"
+    - "pcie_aspm=off"
+
+- name: Add affinity rules for GPS PPS (assigns PPS interrupts to core 4).
+  ansible.builtin.copy:
+    dest: /etc/udev/rules.d/99-pps-affinity.rules
+    content: |
+      ACTION=="add", SUBSYSTEM=="pps", \
+        RUN+="/bin/sh -c 'echo 8 > /proc/irq/$(grep pps /proc/interrupts | cut -d: -f1 | tr -d \" \")/smp_affinity'"
+    mode: '0644'
+    force: false
+    register: add_udev_rule
+
 - name: Reboot if boot config was changed.
   ansible.builtin.reboot:
   when: >
     modify_boot_config is changed
     or modify_cmdline_txt is changed
+    or set_performance_mode is changed
+    or add_udev_rule is changed
