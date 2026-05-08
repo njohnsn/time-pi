@@ -1,0 +1,12 @@
+[Unit]
+Description=Optimize System for PTP Stratum 1
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ptp-optimize.sh
+RemainAfterExit=yes
+User=root
+
+[Install]
+WantedBy=multi-user.target

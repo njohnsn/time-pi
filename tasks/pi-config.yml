@@ -25,17 +25,11 @@
   with_items:
     - "console=serial0,115200"
 
-- name: Switch RPi to performance mode to ensure best performance GPS.
-  ansible.builtin.shell: |
-    set -o pipefail
-    echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
-  register: set_performance_mode
-
 - name: Ensure core 4 is isolated and pcie power management is disabled for i226 compatibility.
   ansible.builtin.lineinfile:
-    path: /etc/example.conf
-    regexp: '^(.*?)(?:\s{{ item }})?$'
-    line: '\1 {{ item }}'
+    path: /boot/firmware/cmdline.txt
+    regexp: '^(?!.*\b{{ item }}\b).*'
+    line: '\g<0>{{ item }}'
     backrefs: true
   register: modify_cmdline_txt
   loop:
@@ -50,12 +44,45 @@
         RUN+="/bin/sh -c 'echo 8 > /proc/irq/$(grep pps /proc/interrupts | cut -d: -f1 | tr -d \" \")/smp_affinity'"
     mode: '0644'
     force: false
-    register: add_udev_rule
+  register: add_udev_rule
+
+- name: Create PPS Optimization Scriopt
+  ansible.builtin.template:
+    src: templates/ptp-optimize.sh.j2
+    dest: /usr/local/bin/ptp-optimize.sh
+    mode: 0755
+    owner: root
+    group: root
+  register: pps_optimization_script
+
+- name: Create systemd unit to run optimization script at boot.
+  ansible.builtin.template:
+    src: ptp-optimize.unit.j2
+    dest: /etc/systemd/system/ptp-optimize.service
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+  register: pps_optimization_script
+
+- name: reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Configure  service.
+  ansible.builtin.service:
+    name: ptp-optimize
+    state: started
+    enabled: true
+  become: true
+  register: pps_optimization_script
 
 - name: Reboot if boot config was changed.
   ansible.builtin.reboot:
   when: >
     modify_boot_config is changed
     or modify_cmdline_txt is changed
-    or set_performance_mode is changed
     or add_udev_rule is changed
+    or pps_optimization_script is changed
+

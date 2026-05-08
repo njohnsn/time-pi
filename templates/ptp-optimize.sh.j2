@@ -1,0 +1,20 @@
+#!/bin/bash
+# PTP/NTP Optimization Script for "Chasing Zeros"
+
+# 1. Set CPU Governor to Performance
+echo "performance" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor > /dev/null
+
+# 2. Find PPS IRQ and pin to Core 3 (Mask 8)
+# We use a loop in case the driver is still loading
+for i in {1..10}; do
+    PPS_IRQ=$(grep pps /proc/interrupts | awk -F: '{print $1}' | tr -d ' ')
+    if [ ! -z "$PPS_IRQ" ]; then
+        echo 8 > /proc/irq/$PPS_IRQ/smp_affinity
+        break
+    fi
+    sleep 1
+done
+
+# 3. Optimize Network Interface for PTP (if using eth1)
+# Disables interrupt coalescing to reduce packet latency jitter
+ethtool -C {{ ptp4l_ptp_iface }} rx-usecs 0 2>/dev/null
