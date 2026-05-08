@@ -1,6 +1,6 @@
 # Time Pi
 
-[![CI](https://github.com/geerlingguy/time-pi/actions/workflows/ci.yml/badge.svg)](https://github.com/geerlingguy/time-pi/actions/workflows/ci.yml)
+[![CI](https://github.com/njohnsn/time-pi/actions/workflows/ci.yml/badge.svg)](https://github.com/njohnsn/time-pi/actions/workflows/ci.yml)
 
 <p align="center"><img alt="Raspberry Pi 5 with TimeHAT V2" src="/resources/time-pi.jpeg" height="auto" width="600"></p>
 
