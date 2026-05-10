@@ -17,7 +17,7 @@
     dest: /etc/systemd/system/ts2phc.service
     owner: root
     group: root
-    mode: 0o755
+    mode: "0755"
   notify: Restart ts2phc
 
 - name: Ensure ts2phc service is in the correct state.
