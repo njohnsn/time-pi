@@ -2,4 +2,3 @@
 skip_list:
   - 'no-handler'
   - 'no-changed-when'
-
