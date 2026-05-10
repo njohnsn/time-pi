@@ -3,5 +3,5 @@
   ansible.builtin.template:
     src: "templates/eth1.j2"
     dest: "/etc/network/if-up.d/eth1"
-    mode: 0755
+    mode: 0o755
   notify: Restart NetworkManager
