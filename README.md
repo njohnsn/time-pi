@@ -99,7 +99,6 @@ sudo systemctl restart gpsd
 
 For more on how to set the baud rate (or tweak other GPS module parameters), see [millerjs.org's ubxtool page](https://wiki.millerjs.org/ubxtool) and the [ubxtool examples](https://gpsd.io/ubxtool-examples.html) page. You can also configure most options via `pygpsclient` using a GUI.
 
-
 ## Debugging
 
 Some handy commands:
