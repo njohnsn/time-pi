@@ -11,6 +11,11 @@
     state: present
   when: ptp4l_version_latest
 
+- name: Install pps-tools
+  ansible.builtin.apt:
+    name: pps-tools
+    state: present
+
 - name: Copy ts2phc systemd unit file into place.
   ansible.builtin.template:
     src: ts2phc.unit.j2
