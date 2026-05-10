@@ -32,7 +32,7 @@
     dest: /etc/systemd/system/phc2sys.service
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
   notify: Restart phc2sys
 
 - name: Ensure phc2sys service is in the correct state.
@@ -45,7 +45,7 @@
   ansible.builtin.template:
     src: "templates/ptp4l.conf.j2"
     dest: "/etc/ptp4l.conf"
-    mode: 0644
+    mode: "0644"
   notify: Restart ptp4l
 
 - name: Copy ptp4l systemd unit file into place.
@@ -54,7 +54,7 @@
     dest: /etc/systemd/system/ptp4l.service
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
   notify: Restart ptp4l
 
 - name: Ensure ptp4l service is in the correct state.
