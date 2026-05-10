@@ -13,6 +13,6 @@ rules:
   octal-values:
     forbid-implicit-octal: true
     forbid-explicit-octal: true
-    
+
 ignore: |
   .github/workflows/stale.yml
